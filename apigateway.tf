@@ -34,7 +34,7 @@ resource "aws_acm_certificate_validation" "example_validation_complete" {
 
 resource "aws_api_gateway_domain_name" "shortener" {
   domain_name              = "group2-urlshortener.sctp-sandbox.com"
-  regional_certificate_arn = "" # ACM Cert for your domain
+  regional_certificate_arn = "cert" # ACM Cert for your domain
 
   endpoint_configuration {
     types = ["REGIONAL"]
