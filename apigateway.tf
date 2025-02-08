@@ -11,6 +11,26 @@ resource "aws_route53_record" "www" {
   }
 }
 
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "group2-urlshortener.sctp-sandbox.com" # Your domain name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Route53 Zone (If you don't have it already)
+resource "aws_route53_zone" "your_zone" {
+  name = "sctp-sandbox.com" # Your domain
+}
+
+resource "aws_acm_certificate_validation" "example_validation_complete" {
+  certificate_arn = aws_acm_certificate.example.arn
+
+  # Depends on the DNS records being created
+  depends_on = [aws_route53_record.example_validation]
+}
 
 resource "aws_api_gateway_domain_name" "shortener" {
   domain_name              = "group2-urlshortener.sctp-sandbox.com"
@@ -21,4 +41,10 @@ resource "aws_api_gateway_domain_name" "shortener" {
   }
 }
 
-resource "aws_api_gateway_base_path_mapping" "shortener" {}
+resource "aws_api_gateway_base_path_mapping" "shortener" {
+  api_id      = aws_api_gateway_rest_api.shortener_api.id
+  stage_name  = aws_api_gateway_deployment.shortener_deployment.stage_name
+  domain_name = aws_api_gateway_domain_name.shortener.domain_name
+  base_path   = "(none)" # Maps the root path.  Use "v1" for api.example.com/v1, etc.
+
+}
